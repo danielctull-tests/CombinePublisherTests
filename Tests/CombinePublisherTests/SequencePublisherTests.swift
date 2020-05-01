@@ -3,7 +3,7 @@ import Combine
 import CustomPublishers
 import XCTest
 
-final class ArrayPublisherTests: XCTestCase {
+final class SequencePublisherTests: XCTestCase {
 
     func testCompleteUnlimited() {
 
@@ -11,7 +11,7 @@ final class ArrayPublisherTests: XCTestCase {
         [1,2,3].publisher.subscribe(s1)
 
         let s2 = TestSubscriber<Int, Never>(demand: .unlimited)
-        ArrayPublisher([1,2,3]).subscribe(s2)
+        SequencePublisher([1,2,3]).subscribe(s2)
 
         let expectation: [TestSubscriber<Int, Never>.Event] = [
             .subscription,
@@ -31,7 +31,7 @@ final class ArrayPublisherTests: XCTestCase {
         [1,2,3].publisher.subscribe(s1)
 
         let s2 = TestSubscriber<Int, Never>(demand: .max(2))
-        ArrayPublisher([1,2,3]).subscribe(s2)
+        SequencePublisher([1,2,3]).subscribe(s2)
 
         let expectation: [TestSubscriber<Int, Never>.Event] = [
             .subscription,
@@ -58,7 +58,7 @@ final class ArrayPublisherTests: XCTestCase {
         [1,2,3].publisher.subscribe(s1)
 
         let s2 = makeSubscriber()
-        ArrayPublisher([1,2,3]).subscribe(s2)
+        SequencePublisher([1,2,3]).subscribe(s2)
 
         let expectation: [TestSubscriber<Int, Never>.Event] = [
             .subscription,
@@ -87,7 +87,7 @@ final class ArrayPublisherTests: XCTestCase {
         [1,2,3].publisher.subscribe(s1)
 
         let s2 = makeSubscriber()
-        ArrayPublisher([1,2,3]).subscribe(s2)
+        SequencePublisher([1,2,3]).subscribe(s2)
 
         let expectation: [TestSubscriber<Int, Never>.Event] = [
             .subscription,
@@ -105,7 +105,7 @@ final class ArrayPublisherTests: XCTestCase {
         [1,2,3].publisher.subscribe(s1)
 
         let s2 = TestSubscriber<Int, Never>(demand: .none)
-        ArrayPublisher([1,2,3]).subscribe(s2)
+        SequencePublisher([1,2,3]).subscribe(s2)
 
         var expectation: [TestSubscriber<Int, Never>.Event] = [
             .subscription,
@@ -139,7 +139,7 @@ final class ArrayPublisherTests: XCTestCase {
         [1,2,3].publisher.subscribe(s1)
 
         let s2 = TestSubscriber<Int, Never>(demand: .none)
-        ArrayPublisher([1,2,3]).subscribe(s2)
+        SequencePublisher([1,2,3]).subscribe(s2)
 
         var expectation: [TestSubscriber<Int, Never>.Event] = [
             .subscription,
