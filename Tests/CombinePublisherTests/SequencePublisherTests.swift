@@ -163,4 +163,49 @@ final class SequencePublisherTests: XCTestCase {
         XCTAssertEqual(s1.events, expectation)
         XCTAssertEqual(s2.events, expectation)
     }
+
+    // This is a test to see how the Publishers.Sequence publisher accesses
+    // elements of the given sequence.
+    func testSequenceAccess() {
+
+        // An infinite sequence of integers that records the elements its
+        // iterator provides.
+        class TestSequence: Sequence {
+            var provided: [Int] = []
+            private var element = 0
+            func makeIterator() -> AnyIterator<Int> { AnyIterator {
+                defer { self.element += 1 }
+                self.provided.append(self.element)
+                return self.element
+            }}
+        }
+
+        let seq1 = TestSequence()
+        let sub1 = TestSubscriber<Int, Never>(demand: .none)
+        seq1.publisher.subscribe(sub1)
+
+        let seq2 = TestSequence()
+        let sub2 = TestSubscriber<Int, Never>(demand: .none)
+        SequencePublisher(seq2).subscribe(sub2)
+
+        // We've asked for no elements here, our implementation grabs the
+        // initial element, whereas Combine's grabs the first two.
+
+        XCTAssertEqual(seq1.provided, [0, 1])
+        XCTAssertEqual(seq2.provided, [0])
+
+        sub1.subscriptions.forEach { $0.request(.max(1)) }
+        sub2.subscriptions.forEach { $0.request(.max(1)) }
+
+        // Then remains one ahead of our implementation.
+
+        XCTAssertEqual(seq1.provided, [0, 1, 2])
+        XCTAssertEqual(seq2.provided, [0, 1])
+
+        sub1.subscriptions.forEach { $0.request(.max(2)) }
+        sub2.subscriptions.forEach { $0.request(.max(2)) }
+
+        XCTAssertEqual(seq1.provided, [0, 1, 2, 3, 4])
+        XCTAssertEqual(seq2.provided, [0, 1, 2, 3])
+    }
 }
