@@ -22,6 +22,7 @@ extension TestSubscriber: Subscriber {
     public func receive(subscription: Subscription) {
         subscriptions.append(subscription)
         events.append(.subscription)
+        guard demand > 0 else { return }
         subscription.request(demand)
     }
 
