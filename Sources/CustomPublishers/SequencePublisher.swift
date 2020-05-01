@@ -22,15 +22,16 @@ extension SequencePublisher {
 
     class Subscription<Subscriber> where Subscriber: Combine.Subscriber, Subscriber.Input == Output, Subscriber.Failure == Failure {
 
-        let subscriber: Subscriber
-        let sequence: [Output]
+        private let subscriber: Subscriber
+        private var iterator: Sequence.Iterator
         private var cancelled = false
-        private var index = 0
+        private var next: Output?
         private var demand = Subscribers.Demand.none
 
         init(subscriber: Subscriber, sequence: Sequence) {
             self.subscriber = subscriber
-            self.sequence = Array(sequence)
+            iterator = sequence.makeIterator()
+            next = iterator.next()
         }
     }
 }
@@ -42,12 +43,17 @@ extension SequencePublisher.Subscription: Combine.Subscription {
         guard !cancelled else { return }
         demand += additional
 
-        while index < demand {
+        while demand > 0 {
 
-            demand += subscriber.receive(sequence[index])
-            index += 1
+            if let output = next {
+                demand += subscriber.receive(output)
+                demand -= 1
+                next = iterator.next()
+            }
 
-            guard index < sequence.count else {
+            // This can't be an else, because it needs to be reevaluated after
+            // the potential assignment of the next element.
+            if next == nil {
                 subscriber.receive(completion: .finished)
                 return
             }
